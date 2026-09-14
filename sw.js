@@ -5,7 +5,11 @@ const CACHE = 'schedulator-shell';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
+  // A cache that cannot be filled right now must not stop the worker installing — the fetch
+  // handler below fills it on the next visit with signal instead.
+  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); })
+    .catch(function () { })
+    .then(function () { return self.skipWaiting(); }));
 });
 
 self.addEventListener('activate', function (e) {
@@ -19,13 +23,13 @@ self.addEventListener('fetch', function (e) {
     fetch(req).then(function (res) {
       if (res && res.ok) {
         const copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        caches.open(CACHE).then(function (c) { return c.put(req, copy); }).catch(function () { });
       }
       return res;
-    }).catch(function () {
+    }).catch(function (err) {
       return caches.match(req).then(function (hit) {
         return hit || (req.mode === 'navigate' ? caches.match('./index.html') : undefined);
-      });
+      }).then(function (hit) { if (hit) return hit; throw err; });
     })
   );
 });

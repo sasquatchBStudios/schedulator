@@ -848,6 +848,9 @@ table.psheet .closedmark{background:#777 !important;color:#fff !important}
   .modal.narrow .modal-h{padding-top:14px}
   .modal-b{padding:14px}
   .modal-f{border-radius:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));flex-wrap:wrap}
+  /* Full-width buttons that a thumb can hit, rather than a ragged right-aligned pile. */
+  .modal-f .sp{display:none}
+  .modal-f .btn{flex:1 1 auto}
   .pop.sheet{left:0 !important;right:0;top:auto !important;bottom:0;min-width:0;max-height:85%;overflow:auto;
     border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));animation:sheetUp .22s var(--ease)}
   .pop.sheet>div{min-width:0 !important;max-width:none !important}
@@ -10407,7 +10410,10 @@ function showWelcome(){
         Storage.ok ? null : el('div.note.bad',{},[el('b',{},'This browser will not let Schedulator save. '),
           'Nothing you enter here will still be here after you close the tab. Use "Save a portable copy" on the '+
           'Save & Backup page before you close it, and open that downloaded file next time.']),
-        !Storage.ok ? null : el('p',{},[el('b',{},'Your work saves itself'),' in this browser on this computer. It is not in the cloud: '+
+        !Storage.ok ? null : el('p',{},[el('b',{},'Your work saves itself'),
+          isPhone() ? ' in this app on this phone. It is not in the cloud: deleting the app, or opening Schedulator in '+
+                      'Safari instead of from its Home Screen icon, will show an empty app. So at the end of every week use '
+                    : ' in this browser on this computer. It is not in the cloud: '+
           'clearing your browsing data, or opening Schedulator in a different browser or on a different computer, '+
           'will show an empty app. So at the end of every week use ',
           isPhone() ? [el('b',{},'Share a backup'),' on the Save & Backup page and send it somewhere safe, like your email.']
